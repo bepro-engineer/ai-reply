@@ -1,110 +1,141 @@
 ---
 
-# 🤖 Reply – 対話に特化したパーソナライズ応答AI
+# 🤖 Reply – 対話専用のパーソナライズ応答AI
 
-「あなたとの対話を記憶し、次の会話に活かすAI」
+<div align="center">
+<img src="https://raw.githubusercontent.com/bepro-engineer/ai-reply/main/images/reply_screen_top.png" width="700">
+</div>
 
 ---
 
-## 💡 Replyとは？
+## 💬 Replyとは？
 
-`Reply`は、ユーザーとの会話履歴を記憶し、次回以降の応答時にその履歴を活用するシンプルな対話型AIです。Phase分岐や人格モードは存在せず、常にリアルタイムの対話ログと記憶データに基づいて応答します。
+「その返事、覚えてるよ」
+Replyは、ユーザーとの対話を記録し、それを元に返答する**記憶ベースの応答AI**です。
+
+Echoとは異なり、人格モードやPhase機能は持たず、常に**同じモードで接客を続けます**。
+LINE Botなどに組み込むことで、まるで“中の人がずっと対応しているかのような”ユーザー体験を実現します。
+
+---
+
+## 🧠 Replyの特徴
+
+* ユーザーごとの**会話履歴・記憶を個別に保持**
+* 会話カテゴリを自動判定（固定辞書型）
+* 過去の記憶（memories）を抽出し、文脈生成に活用
+* AI応答と人間発話の**時系列ログを保存**
+* 常に**同じ人格での応答**（モード分岐なし）
+
+---
 
 ## 🏗️ システム構成
 
-* `app.py`：FlaskベースのWebhookエンドポイントを提供
-* `chatgpt_logic.py`：OpenAI APIへの問い合わせロジック
-* `db_utils.py`：記憶データと対話ログの保存／取得処理（SQLite）
-* `mission_policy.json`：システムの初期方針や制約定義
+| モジュール                 | 説明                    |
+| --------------------- | --------------------- |
+| `app.py`              | Webhook受信用のFlaskアプリ本体 |
+| `chatgpt_logic.py`    | OpenAIへの問い合わせロジック     |
+| `db_utils.py`         | SQLite操作（記憶・対話ログ管理）   |
+| `mission_policy.json` | システムの応答制約・方針定義ファイル    |
 
-## 📦 セットアップ手順
+---
 
-1. **仮想環境の作成と有効化**
+## 🛠️ セットアップ手順
 
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+1. 仮想環境を作成し、依存ライブラリをインストール：
 
-2. **依存ライブラリのインストール**
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. `.env`ファイルを作成（OpenAIキーを設定）：
 
-3. **環境変数の設定（`.env`ファイル）**
+```
+OPENAI_API_KEY=sk-xxxxxx
+```
 
-   ```
-   OPENAI_API_KEY=sk-xxxx
-   ```
+3. データベース初期化（SQLite）：
 
-4. **データベースの初期化**
+```bash
+python
+>>> from db_utils import initDatabase
+>>> initDatabase()
+```
 
-   ```bash
-   python
-   >>> from db_utils import initDatabase
-   >>> initDatabase()
-   ```
+4. アプリ起動：
 
-5. **Flaskアプリの起動**
+```bash
+python app.py
+```
 
-   ```bash
-   python app.py
-   ```
+---
 
-## 🧠 主な機能
+## 🧾 使用テーブル構造
 
-| 機能       | 説明                                  |
-| -------- | ----------------------------------- |
-| 記憶登録     | ユーザー発言内容を `memories` テーブルに保存        |
-| 応答ログ保存   | AI・ユーザー発言を `dialogues` テーブルに記録      |
-| 応答時の記憶参照 | ユーザーID + カテゴリに基づき、過去の関連記憶を最大10件まで取得 |
-| 対話文脈保持   | 直近の対話ログ3件を抽出し、OpenAIへのコンテキストに使用     |
+### 🔹 memories（記憶）
 
-## 🗃️ テーブル構成（SQLite）
+| カラム名             | 型       | 説明            |
+| ---------------- | ------- | ------------- |
+| memory\_id       | INTEGER | 主キー           |
+| content          | TEXT    | 記憶した内容        |
+| category         | TEXT    | 固定カテゴリ（辞書ベース） |
+| weight           | INTEGER | 重み（現状未使用）     |
+| target\_user\_id | TEXT    | 対象ユーザーID      |
+| is\_forgotten    | INTEGER | 忘却フラグ（0 or 1） |
+| created\_at      | TEXT    | 登録日時          |
 
-### memories
+---
 
-| カラム名             | 説明        |
-| ---------------- | --------- |
-| memory\_id       | 主キー       |
-| content          | 記憶したテキスト  |
-| category         | カテゴリ      |
-| weight           | 重み付け（未使用） |
-| target\_user\_id | 記憶対象のユーザー |
-| is\_forgotten    | 忘却フラグ     |
-| created\_at      | 作成日時      |
+### 🔹 dialogues（対話ログ）
 
-### dialogues
+| カラム名              | 型       | 説明                  |
+| ----------------- | ------- | ------------------- |
+| dialogue\_id      | INTEGER | 主キー                 |
+| target\_user\_id  | TEXT    | 対象ユーザーID            |
+| sender\_user\_id  | TEXT    | 発信者ID               |
+| message\_type     | TEXT    | 'input' or 'output' |
+| is\_ai\_generated | INTEGER | 1=AI, 0=人間発話        |
+| text              | TEXT    | メッセージ本文             |
+| memory\_refs      | TEXT    | 使用した記憶（JSON）        |
+| prompt\_version   | TEXT    | 使用したプロンプトのバージョン識別   |
+| temperature       | REAL    | 出力温度                |
+| created\_at       | TEXT    | タイムスタンプ             |
 
-| カラム名              | 説明                |
-| ----------------- | ----------------- |
-| dialogue\_id      | 主キー               |
-| target\_user\_id  | 会話の相手ユーザー         |
-| sender\_user\_id  | 発信者ID（self or AI） |
-| message\_type     | input / output    |
-| is\_ai\_generated | AI応答かどうか          |
-| text              | メッセージ本文           |
-| memory\_refs      | 参照した記憶（JSON形式）    |
-| prompt\_version   | 使用したプロンプトのバージョン   |
-| temperature       | モデル温度設定           |
-| created\_at       | 作成日時              |
+---
 
-## ⚠️ 補足事項
+## 📝 応答構造と記憶の流れ
 
-* **Phaseモードは未実装です。** Echoとは異なり、人格切り替え機能は存在しません。
-* LINE連携やWebhook接続には別途外部設定が必要です。
+```
+User → app.py → chatgpt_logic.py
+           ↓         ↓
+        db_utils ← OpenAI API
+```
 
-## 📁 ファイル構成
+* 会話を受け取り、カテゴリ分類（固定辞書）
+* 過去の記憶を最大10件まで抽出（同カテゴリ・同ユーザーID）
+* 会話コンテキスト（直近3往復）と共にChatGPTへ送信
+* 応答と記憶参照内容をdialoguesに保存
+
+---
+
+## 🚫 Phase機能について
+
+> Echoに存在する「人格モード（Phase0/1/2）」は、Replyには存在しません。
+> Replyは常に**同一モードで記憶・応答**を続ける仕組みです。
+
+---
+
+## 📂 ディレクトリ構成（初期）
 
 ```
 ├── app.py
-├── chatgpt_logic.py
 ├── logic/
 │   ├── chatgpt_logic.py   # ChatGPT呼び出し・プロンプト生成・記憶抽出
 │   ├── db_utils.py        # SQLite操作（記憶・対話ログ保存）
 │   └── __init__.py
-├── memory.db（実行後に作成）
+├── mission_policy.json
+├── memory.db
 ├── .env
 ├── requirements.txt
 ```
