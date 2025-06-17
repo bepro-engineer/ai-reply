@@ -3,7 +3,7 @@
 # 🤖 Reply – 対話専用のパーソナライズ応答AI
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/bepro-engineer/ai-reply/main/images/reply_screen_top.png" width="700">
+<img src="https://github.com/bepro-engineer/ai_reply/blob/main/images/reply_screen_top.png" width="700">
 </div>
 
 ---
