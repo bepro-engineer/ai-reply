@@ -49,6 +49,7 @@ LINE Botなどに組み込むことで、まるで“中の人がずっと対応
 ## 💻 Echoの動作画面
 
 以下は、実際にReplyをLINE上で実行した画面イメージです：
+- 注目は一番下の質問「はい、お話を覚えております。」（記憶の継続が可能です！）
 
 <div align="center">
 <img src="https://raw.githubusercontent.com/bepro-engineer/ai-reply/main/images/reply_screen.png" width="r300">
