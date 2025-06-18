@@ -51,7 +51,7 @@ LINE Botなどに組み込むことで、まるで“中の人がずっと対応
 以下は、実際にReplyをLINE上で実行した画面イメージです：
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/bepro-engineer/ai-echo/main/images/reply_screen.png" width="r300">
+<img src="https://raw.githubusercontent.com/bepro-engineer/ai-reply/main/images/reply_screen.png" width="r300">
 </div>
 
 ## 🛠️ セットアップ手順
