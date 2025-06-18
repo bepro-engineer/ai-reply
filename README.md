@@ -38,6 +38,21 @@ LINE Botなどに組み込むことで、まるで“中の人がずっと対応
 | `mission_policy.json` | システムの応答制約・方針定義ファイル    |
 
 ---
+## 📚 ブログ解説（導入背景・技術・思想）
+
+このプロジェクトの詳しい背景・構造・実装意図については、以下の記事で完全解説しています。
+
+👉 [過人格を持ったLINE接客AI「Reply」](https://www.pmi-sfbac.org/category/product/ai-reply-system/)
+
+---
+
+## 💻 Echoの動作画面
+
+以下は、実際にReplyをLINE上で実行した画面イメージです：
+
+<div align="center">
+<img src="https://raw.githubusercontent.com/bepro-engineer/ai-echo/main/images/reply_screen.png" width="r300">
+</div>
 
 ## 🛠️ セットアップ手順
 
