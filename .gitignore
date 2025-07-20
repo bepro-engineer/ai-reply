@@ -3,5 +3,6 @@ __pycache__/
 *.pyc
 .vscode/
 *.db
-.venv
 nohup.out
+.venv
+venv/

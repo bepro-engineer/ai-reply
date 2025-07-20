@@ -129,10 +129,14 @@ def getChatGptReplyForReplying(user_message, target_user_id):
 
     # プロンプト構築
     prompt = buildPrompt(memory_texts, user_message, mission_data, category, dialogue_history)
-    print(f"[履歴確認] 対話履歴: {dialogue_history}") 
+    print(f"[履歴確認] 対話履歴: {dialogue_history}")
+    print(f"[プロンプト全文]:\n{prompt}")  # ← ここでプロンプト全文をログ出力
 
     # GPT呼び出し
     reply_text = callChatGptWithPrompt(prompt)
+
+    # 応答内容をログ出力
+    print(f"[ChatGPT応答]: {reply_text}")  # ← ここで実際の返答をログ出力
 
     return {
         "reply_text": reply_text,
